@@ -90,10 +90,10 @@ function showSettings(){settings=nativeResult('getSettings');modal('Configuraç�
 }
 $('settingsButton').onclick=showSettings;
 function startSync(){busy('Consultando a base no GitHub…');Native.sync();}
-$('syncButton').onclick=startSync;
+$('syncButton').onclick=()=>{if(importJob)showImport(importJob);else startSync();};
 window.nativeEvent=(name,payload)=>{unbusy();if(name==='error'){if($('modal').open)showError(payload.error);else modal('Não foi possível concluir','VERIFIQUE OS DADOS',`<div class="error">${esc(payload.error)}</div><div class="actions"><button class="secondary" id="errorSettings">Configurações</button><button class="primary" id="errorClose">Fechar</button></div>`,'error');if($('errorSettings'))$('errorSettings').onclick=showSettings;if($('errorClose'))$('errorClose').onclick=closeModal;return;}
- if(name==='importReady'){showImport(payload);return;}if(name==='exported'){$('modal').close();modalKind='';toast('CSV exportado. Pronto para copiar ao cartão.');return;}
+ if(name==='importReady'){if(modalKind==='edit'){importJob=payload;toast('CSV recebido. Termine a edição e toque em Atualizar para revisar.');}else showImport(payload);return;}if(name==='exported'){$('modal').close();modalKind='';toast('CSV exportado. Pronto para copiar ao cartão.');return;}
  if(name==='location'){if($('f_lat')){$('f_lat').value=payload.lat.toFixed(6);$('f_lon').value=payload.lon.toFixed(6);toast('Localização obtida · precisão aproximada de '+Math.round(payload.accuracy)+' m.');}return;}
 };
-function boot(){const loaded=nativeResult('loadData');if(loaded.error){modal('Não foi possível abrir a base','SEUS DADOS FORAM PRESERVADOS',`<div class="error">${esc(loaded.error)}</div><p class="hint">Feche e reabra o aplicativo. Não limpe os dados do Android, pois isso remove os cadastros.</p>`,'error');return;}state=loaded;render();settings=nativeResult('getSettings');if(settings.auto&&(!state.lastSync||Date.now()-Date.parse(state.lastSync)>86400000))setTimeout(startSync,1200);}
+function boot(){const loaded=nativeResult('loadData');if(loaded.error){modal('Não foi possível abrir a base','SEUS DADOS FORAM PRESERVADOS',`<div class="error">${esc(loaded.error)}</div><p class="hint">Feche e reabra o aplicativo. Não limpe os dados do Android, pois isso remove os cadastros.</p>`,'error');return;}state=loaded;render();settings=nativeResult('getSettings');if(settings.auto&&Date.now()-(settings.lastCheck||0)>86400000)setTimeout(()=>{if(!$('modal').open)startSync();},1200);}
 boot();

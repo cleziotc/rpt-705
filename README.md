@@ -34,7 +34,7 @@ Fonte padrão: `cleziotc/rpt-705`, branch `main`, arquivo `data/rpt_updated.csv`
 
 O repositório é privado. O usuário configura um token fine-grained com permissão `Contents: Read-only` apenas para este repositório. Não há credencial embutida no APK. Para repositórios públicos, deixe o token vazio. Repositório, branch e caminho são configuráveis. O token é criptografado com AES-GCM no Android Keystore; backup Android está desabilitado. Dados e tokens são removidos ao limpar dados/desinstalar o aplicativo. Use exportação como backup portátil.
 
-A consulta automática é opcional e ocorre ao abrir se a última aplicação de uma consulta tiver mais de 24 horas. A atualização nunca é aplicada sem revisão. Não há publicação automática das edições do celular no GitHub.
+A consulta automática é opcional e ocorre ao abrir se a última tentativa de consulta tiver mais de 24 horas. A atualização nunca é aplicada sem revisão. Não há publicação automática das edições do celular no GitHub.
 
 ## Exportação para o IC-705
 
