@@ -49,7 +49,10 @@ jobs:
           script: |
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+            adb logcat -c
             adb shell am instrument -w br.com.pp5ci.repeaters705.test/br.com.pp5ci.repeaters705.SmokeTest | tee native-smoke.log
+            adb logcat -d -t 1000 > native-logcat.txt
+            cat native-logcat.txt
             grep 'PASS: Native WebView' native-smoke.log
             adb uninstall br.com.pp5ci.repeaters705
             adb install dist/Repeaters-list-705-v1.0.0.apk
@@ -71,6 +74,7 @@ jobs:
           name: android-validation
           path: |
             native-smoke.log
+            native-logcat.txt
             release-window.xml
             app/build/reports/
       - name: Publish first release
