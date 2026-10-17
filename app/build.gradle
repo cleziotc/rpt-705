@@ -2,7 +2,7 @@ plugins { id 'com.android.application' }
 android {
     namespace 'br.com.pp5ci.repeaters705'
     compileSdk 35
-    defaultConfig { applicationId 'br.com.pp5ci.repeaters705'; minSdk 26; targetSdk 35; versionCode 1; versionName '1.0.0'; testInstrumentationRunner 'br.com.pp5ci.repeaters705.SmokeTest' }
+    defaultConfig { applicationId 'br.com.pp5ci.repeaters705'; minSdk 26; targetSdk 35; versionCode 2; versionName '1.1.0'; testInstrumentationRunner 'br.com.pp5ci.repeaters705.SmokeTest' }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
     if (System.getenv('RPT_KEYSTORE')) {
         signingConfigs { release { storeFile file(System.getenv('RPT_KEYSTORE')); storePassword System.getenv('RPT_STORE_PASSWORD'); keyAlias 'rpt705'; keyPassword System.getenv('RPT_STORE_PASSWORD') } }

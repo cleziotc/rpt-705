@@ -4,7 +4,7 @@ Aplicativo Android offline para gerenciar listas de repetidoras do Icom IC-705. 
 
 ## Instalação
 
-Baixe `Repeaters-list-705-v1.0.0.apk` em **Releases**. Android 8.0 (API 26) ou superior, incluindo Galaxy S24 Ultra. Não requer conexão com o rádio. O arquivo é assinado com certificado próprio do projeto, sem bibliotecas nativas dependentes de arquitetura.
+Baixe `Repeaters-list-705-v1.1.0.apk` em **Releases**. Android 8.0 (API 26) ou superior, incluindo Galaxy S24 Ultra. Não requer conexão com o rádio. O arquivo é assinado com certificado próprio do projeto, sem bibliotecas nativas dependentes de arquitetura.
 
 ## Base inicial e formato CSV
 
@@ -57,8 +57,24 @@ java -cp /tmp/rpt-tests CsvTest data/rpt_updated.csv
 node tests/core.test.cjs data/rpt_updated.csv
 ```
 
-Para uma release futura com a mesma assinatura, use o backup privado da chave do projeto, nunca o adicione ao Git. Variáveis aceitas pelo Gradle: `RPT_KEYSTORE` (caminho absoluto) e `RPT_STORE_PASSWORD`; alias `rpt705`. Incremente versionCode/versionName, execute os testes e atualize o workflow/release. O APK inicial em `dist` é a distribuição assinada; o workflow verifica assinatura, SHA-256 e assets, compila o código-fonte e executa o teste no emulador antes de publicar.
+Para uma release futura com a mesma assinatura, use o backup privado da chave do projeto, nunca o adicione ao Git. Variáveis aceitas pelo Gradle: `RPT_KEYSTORE` (caminho absoluto) e `RPT_STORE_PASSWORD`; alias `rpt705`. Incremente versionCode/versionName, execute os testes e atualize o workflow/release. Os APKs em `dist` são distribuições assinadas; o workflow verifica assinatura, SHA-256 e assets, compila o código-fonte e executa o teste no emulador antes de publicar.
 
 ## Verificações
 
 `CsvTest` verifica os 589 registros, roundtrip dos dois separadores, BOM, precisão, limites, duplicidades, nomes de grupos e preservação byte a byte dos campos originais. `core.test.cjs` cobre pesquisa, acentos, distância, mesclagem, edição local, exclusões, substituição e favoritos. O teste de instrumentação `SmokeTest` exercita a Activity real, WebView, bridge, cadastro, edição, exclusão, persistência em disco, desfazer e criptografia no Keystore. `tests/ui.cjs` testa a interface em viewports de celular e tablet com bridge simulada.
+
+## Cadastro de grupos e cidades (v1.1.0)
+
+O grupo é selecionado por número e nome. **Cadastrar grupo** usa somente números livres entre 1 e 50, nome de até 16 caracteres e estado padrão. O cadastro fica salvo mesmo sem repetidoras e pode ser acessado nas Configurações. Criar um grupo dentro do cadastro de uma repetidora preserva os campos em andamento.
+
+Estado e cidade usam listas suspensas com 27 UFs e 5.571 municípios do catálogo oficial do IBGE, embarcado para uso offline (`app/src/main/assets/cities.js`). O estado padrão do grupo sugere a UF; cada repetidora mantém sua própria UF e município. O filtro de cidades considera acentos e maiúsculas equivalentes.
+
+O nome completo do município e seu código IBGE ficam nos dados internos. O campo **Nome no rádio** continua em `Name`, com até 16 caracteres, e pode ser ajustado pelo usuário. Nomes abreviados dos CSVs existentes são mantidos como opção de cadastro atual quando não há correspondência exata com o catálogo. Nenhum nome importado é silenciosamente substituído ao abrir o editor.
+
+A migração v1→v2 cria o catálogo dos grupos existentes sem reescrever nenhum registro; a primeira gravação persiste o esquema novo. Favoritos, IDs, edição local, exclusões, credenciais e dados já existentes são mantidos. A mesclagem e substituição de CSV reconciliam os grupos usados com o cadastro e preservam grupos vazios. UF e município internos são invalidados quando um CSV altera a cidade, para não conservar metadados antigos.
+
+Campos obrigatórios têm asterisco, atributo HTML `required` e indicação acessível. O indicativo é obrigatório em DV; latitude e longitude são obrigatórias para posição aproximada/exata ou quando alguma coordenada está preenchida. As regras nativas do CSV permanecem ativas.
+
+Instale a v1.1.0 sobre a v1.0.0. Não desinstale se quiser conservar os dados. O certificado de assinatura é o mesmo da primeira release.
+
+Fonte: [API de Localidades do IBGE](https://servicodados.ibge.gov.br/api/docs/localidades), consulta em 17/10/2026. O catálogo pode ser regenerado com `tools/prepare_cities.py` a partir das respostas oficiais de estados e municípios. Os CSVs de 17 colunas continuam sendo o formato de intercâmbio com o rádio.

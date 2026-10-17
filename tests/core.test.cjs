@@ -21,3 +21,13 @@ plan=C.planImport(local,rows.slice(0,2),{replace:true});assert.equal(plan.state.
 // Moving a locally edited repeater still matches its original source key.
 local.records[0].fields[6]='146.530000';plan=C.planImport(local,rows,{preserve:true});assert.equal(plan.state.records.length,589);assert.equal(plan.state.records[0].fields[6],'146.530000');
 console.log('PASS: filtering, accent search, frequencies, distance, merge, overwrite, deletion tombstones, replacement, favorites and source identity.');
+const G=require('../app/src/main/assets/cities.js');
+const migrated=C.migrateState(initial,G);assert.equal(migrated.version,2);assert.equal(migrated.groups.length,27);assert(migrated.groups.every(g=>g.uf));assert.deepEqual(migrated.records,initial.records,'migration must not rewrite any source record');
+const custom=C.addGroup(migrated,{no:'28',name:'Viagens',uf:'SC'},G);assert.equal(custom.groups.length,28);assert.equal(custom.groups.at(-1).no,'28');assert.equal(C.migrateState(custom,G).groups.length,28,'empty group persists');
+assert.throws(()=>C.addGroup(custom,{no:'28',name:'Duplicado',uf:'PR'},G));assert.throws(()=>C.addGroup(custom,{no:'51',name:'Inválido',uf:'SC'},G));assert.throws(()=>C.addGroup(custom,{no:'29',name:'Teste',uf:''},G));
+assert.equal(G.states.length,27);assert.equal(G.states.reduce((n,s)=>n+s.cities.length,0),5571);assert.equal(G.states.find(s=>s.uf==='SC').cities.length,295);
+const joinville=G.states.find(s=>s.uf==='SC').cities.find(c=>c[1]==='Joinville');assert.equal(joinville[0],'4209102');assert(!G.states.find(s=>s.uf==='PR').cities.some(c=>c[0]===joinville[0]));
+const longCity='São José do Rio Preto';assert(C.radioName(longCity).length<=16);assert.equal(C.radioName('São Paulo'),'Sao Paulo');
+const metadata={...records[0],cityName:longCity,uf:'SP'};assert.equal(C.search([metadata],{...filter,query:'São José do Rio Preto SP'}).length,1);
+const relocated=C.clone(initial);relocated.records[0].uf='AC';relocated.records[0].cityId='1200401';relocated.records[0].cityName='Rio Branco';const changed=C.clone(rows);changed[0][2]='Outra cidade';const changedPlan=C.planImport(relocated,changed,{preserve:false});assert.equal(changedPlan.state.records[0].cityName,undefined,'CSV city change invalidates local city metadata');
+console.log('PASS: v1 migration, 27 UF mappings, empty group persistence, group limits, official municipality membership, radio-name limits and full-name search.');

@@ -1,17 +1,14 @@
-Primeira versão do **Repeaters list 705**, para Android 8.0 ou superior.
+**Repeaters list 705 v1.1.0** — cadastro com grupos e municípios brasileiros.
 
-- Base inicial offline com 589 repetidoras: 548 FM e 41 D-STAR, em 27 grupos.
-- Cadastro, edição dos 17 campos do IC-705, exclusão e favoritos persistentes.
-- Busca por texto, estado/grupo, banda, frequência, FM/D-STAR, CTCSS e proximidade.
-- Localização do celular sob demanda ou coordenadas manuais; abertura no mapa.
-- Importação de CSV com ponto e vírgula ou vírgula, UTF-8/BOM e Windows-1252.
-- Revisão da mesclagem/substituição, proteção de edições e exclusões locais e opção de desfazer.
-- Exportação completa ou dos resultados filtrados, preservando o esquema de 17 colunas, UTF-8 e CRLF.
-- Consulta configurável do CSV no GitHub, manual ou diária ao abrir, com revisão antes de aplicar.
-- Token opcional para repositórios privados, protegido pelo Android Keystore.
+- Grupo escolhido por menu suspenso, com número e nome.
+- Cadastro persistente de novos grupos (números livres de 1 a 50), inclusive grupos sem repetidoras.
+- Gerenciamento de grupos nas Configurações e cadastro direto durante a inclusão de uma repetidora, preservando o formulário em andamento.
+- Estado e cidade por menus suspensos, com catálogo offline do IBGE: 27 UFs e 5.571 municípios.
+- Filtro por nome para localizar rapidamente a cidade no menu.
+- Nome completo da cidade salvo no app; campo independente de nome para o rádio, limitado a 16 caracteres.
+- Campos obrigatórios identificados com asterisco e validação, incluindo indicativo obrigatório em D-STAR e coordenadas conforme a posição.
+- Migração da base anterior, preservando repetidoras, edições, exclusões e favoritos. Mesma assinatura da v1.0.0: instale por cima da versão existente.
 
-O repositório inicial é privado: configure em **Configurações** um token fine-grained limitado ao rpt-705 com permissão **Contents: Read-only**. A base embarcada independe desse acesso.
+Os CSVs exportados mantêm as 17 colunas do IC-705. O catálogo de municípios e as informações internas de grupos não acrescentam colunas ao arquivo.
 
-Copie o CSV exportado para `IC-705/Csv/RptList` no cartão do rádio e importe em `MENU → SET → SD Card → Import/Export → Import → Repeater List`.
-
-A compatibilidade do arquivo é validada por testes de estrutura e preservação de todos os campos. A importação física no IC-705 ainda depende da validação do usuário. Os dados originais não foram verificados quanto à operação atual de cada repetidora.
+A importação física do CSV no rádio continua dependendo da validação no equipamento.

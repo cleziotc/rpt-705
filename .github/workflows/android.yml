@@ -3,6 +3,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+env:
+  RPT_VERSION: '1.1.0'
 permissions:
   contents: write
 concurrency:
@@ -57,7 +59,7 @@ jobs:
             grep -E 'chromium|AndroidRuntime|pp5ci|FATAL|WebView|SmokeTest' native-logcat.txt || true
             grep 'PASS: Native WebView' native-smoke.log
             adb uninstall br.com.pp5ci.repeaters705
-            adb install dist/Repeaters-list-705-v1.0.0.apk
+            adb install dist/Repeaters-list-705-v${RPT_VERSION}.apk
             adb shell am force-stop com.android.launcher3
             adb shell am start -W -n br.com.pp5ci.repeaters705/.MainActivity
             for attempt in $(seq 1 8); do adb shell uiautomator dump /sdcard/release-window.xml; adb pull /sdcard/release-window.xml release-window.xml; grep -q '589' release-window.xml && break; adb shell am force-stop com.android.launcher3; sleep 3; done
@@ -66,8 +68,9 @@ jobs:
         run: |
           cd dist
           sha256sum -c SHA256SUMS
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs Repeaters-list-705-v1.0.0.apk
-          python3 ../tools/verify_apk.py Repeaters-list-705-v1.0.0.apk ..
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs Repeaters-list-705-v${RPT_VERSION}.apk
+          test "$("$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs Repeaters-list-705-v1.0.0.apk | grep 'Signer #1 certificate SHA-256 digest')" = "$("$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs Repeaters-list-705-v${RPT_VERSION}.apk | grep 'Signer #1 certificate SHA-256 digest')"
+          python3 ../tools/verify_apk.py Repeaters-list-705-v${RPT_VERSION}.apk ..
       - name: Store build reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -78,12 +81,12 @@ jobs:
             native-logcat.txt
             release-window.xml
             app/build/reports/
-      - name: Publish first release
+      - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v1.0.0 >/dev/null 2>&1; then
-            echo 'Release v1.0.0 already exists; preserving its signed assets.'
+          if gh release view "v$RPT_VERSION" >/dev/null 2>&1; then
+            echo 'Release already exists; preserving its signed assets.'
           else
-            gh release create v1.0.0 dist/Repeaters-list-705-v1.0.0.apk dist/SHA256SUMS --target "$GITHUB_SHA" --title 'Repeaters list 705 v1.0.0' --notes-file RELEASE_NOTES.md
+            gh release create "v$RPT_VERSION" dist/Repeaters-list-705-v${RPT_VERSION}.apk dist/SHA256SUMS --target "$GITHUB_SHA" --title "Repeaters list 705 v$RPT_VERSION" --notes-file RELEASE_NOTES.md
           fi

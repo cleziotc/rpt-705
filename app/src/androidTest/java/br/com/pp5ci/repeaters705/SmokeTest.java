@@ -15,8 +15,13 @@ public class SmokeTest extends Instrumentation {
  @Override public void onStart(){Bundle result=new Bundle();try{
   Intent i=new Intent(getTargetContext(),MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);activity=(MainActivity)startActivitySync(i);waitForIdleSync();
   boolean loaded=false;for(int n=0;n<75;n++){if("589".equals(eval("typeof state!=='undefined'&&state?state.records.length:0"))){loaded=true;break;}Thread.sleep(200);}check(loaded,"Seed loads through secure WebView origin");
+  check("27".equals(eval("state.groups.length")),"Existing v1.0 group migration");
+  check("true".equals(eval("showGroupForm(null);$('g_name').value='Teste SC';$('g_uf').value='SC';$('groupForm').requestSubmit();JSON.parse(Native.loadData()).groups.some(g=>g.no==='28'&&g.name==='Teste SC')")),"Empty group saved to native disk");
+  check("true".equals(eval("$('modal').close();modalKind='';showEditor(null);$('e0').tagName==='SELECT'&&$('e_city').options.length===296&&$('e_uf').value==='SC'")),"Group and municipality menus");
+  check("true".equals(eval("$('e9').value='DV';$('e9').dispatchEvent(new Event('change'));$('e4').required")),"Conditional required callsign");
+  eval("$('modal').close();modalKind='';");
   check("41".equals(eval("C.search(state.records,{query:'',mode:'DV',sort:'name'}).length")),"DSTAR search");
-  check("true".equals(eval("$('addButton').click();$('e2').value='Teste PP5CI';$('e4').value='PP5CI';$('e6').value='146.555000';$('e14').value='-26.3044';$('e15').value='-48.8487';$('editorForm').requestSubmit();state.records.length===590")),"Create and save through native validation");
+  check("true".equals(eval("$('addButton').click();$('e_city').value='4209102';$('e_city').dispatchEvent(new Event('change'));$('e2').value='Teste PP5CI';$('e4').value='PP5CI';$('e6').value='146.555000';$('e14').value='-26.3044';$('e15').value='-48.8487';$('editorForm').requestSubmit();state.records.length===590")),"Create and save through native validation");
   check("590".equals(eval("JSON.parse(Native.loadData()).records.length")),"Disk persistence");
   check("true".equals(eval("showEditor(state.records[state.records.length-1].id);$('e3').value='TEST';$('editorForm').requestSubmit();JSON.parse(Native.loadData()).records.at(-1).fields[3]==='TEST'")),"Edit persistence");
   check("true".equals(eval("confirmDelete(state.records[state.records.length-1].id);$('confirmDelete').click();state.records.length===589")),"Delete persistence");
@@ -25,6 +30,6 @@ public class SmokeTest extends Instrumentation {
   check("true".equals(eval("!JSON.parse(Native.saveSettings(JSON.stringify({repo:'cleziotc/rpt-705',branch:'main',path:'data/rpt_updated.csv',token:'instrumentation-test-only',auto:false}))).error")),"Keystore encryption");
   android.content.SharedPreferences prefs=activity.getSharedPreferences("settings",0);String encrypted=prefs.getString("token","");check(!encrypted.contains("instrumentation-test-only")&&encrypted.contains(":"),"Token encrypted at rest");check("instrumentation-test-only".equals(activity.crypt(encrypted,false)),"Keystore decryption");
   eval("Native.saveSettings(JSON.stringify({repo:'cleziotc/rpt-705',branch:'main',path:'data/rpt_updated.csv',removeToken:true,auto:false}));$('modal').close();render();");
-  result.putString("stream","PASS: Native WebView, seed, search, CRUD, disk persistence, undo, Keystore encryption and token removal.\n");finish(Activity.RESULT_OK,result);
+  result.putString("stream","PASS: Native WebView, seed, search, CRUD, disk persistence, undo, Keystore encryption, group migration, persistent groups and city menus.\n");finish(Activity.RESULT_OK,result);
  }catch(Throwable e){e.printStackTrace();result.putString("stream","FAIL: "+e+"\n");result.putString("shortMsg",e.toString());finish(Activity.RESULT_CANCELED,result);}}
 }

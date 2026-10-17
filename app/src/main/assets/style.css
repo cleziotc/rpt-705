@@ -2,3 +2,5 @@
 .exportnote{margin-top:18px}
 
 .roundadd svg{width:25px;height:25px;stroke-width:2.2;vertical-align:middle}
+
+.req{color:#ffac98;font-weight:750}.req[hidden]{display:none}.wide{grid-column:1/-1}.cityhint{margin:0;font-size:11px}.groupList{display:grid;gap:10px}.groupRow{padding:13px 15px;background:var(--card);border:1px solid var(--edge);border-radius:11px}.groupRow strong,.groupRow small{display:block}.groupRow strong{font-size:14px}.groupRow small{color:var(--muted);font-size:11px;margin-top:4px}.field select{min-width:0;text-overflow:ellipsis}
