@@ -51,6 +51,13 @@ jobs:
             adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
             adb shell am instrument -w br.com.pp5ci.repeaters705.test/br.com.pp5ci.repeaters705.SmokeTest | tee native-smoke.log
             grep 'PASS: Native WebView' native-smoke.log
+            adb uninstall br.com.pp5ci.repeaters705
+            adb install dist/Repeaters-list-705-v1.0.0.apk
+            adb shell am start -W -n br.com.pp5ci.repeaters705/.MainActivity
+            sleep 4
+            adb shell uiautomator dump /sdcard/release-window.xml
+            adb pull /sdcard/release-window.xml release-window.xml
+            grep -q '589' release-window.xml
       - name: Verify signed release APK
         run: |
           cd dist
@@ -64,6 +71,7 @@ jobs:
           name: android-validation
           path: |
             native-smoke.log
+            release-window.xml
             app/build/reports/
       - name: Publish first release
         env:
