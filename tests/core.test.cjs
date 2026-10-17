@@ -1,0 +1,23 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),C=require('../app/src/main/assets/core.js');
+const lines=fs.readFileSync(process.argv[2]||'data/rpt_updated.csv','utf8').trim().split(/\r?\n/),rows=lines.slice(1).map(l=>l.split(';'));
+const records=rows.map((r,i)=>({id:''+i,fields:r,sourceKey:C.key(r),base:C.clone(r),dirty:false,favorite:false}));
+const initial={records,tombstones:[],lastSync:''},filter={query:'',group:'',mode:'',min:'',max:'',sort:'name'};
+assert.equal(C.search(records,filter).length,589);assert.equal(C.search(records,{...filter,mode:'DV'}).length,41);
+assert.equal(C.search(records,{...filter,mode:'FM'}).length,548);assert.equal(C.search(records,{...filter,group:'24'}).length,66);
+assert(C.search(records,{...filter,query:'SAO PAULO'}).length>0);assert(C.search(records,{...filter,query:'São Paulo'}).length>0);
+assert(C.search(records,{...filter,min:'430',max:'440'}).every(r=>+r.fields[6]>=430&&+r.fields[6]<=440));
+assert.equal(C.search(records,{...filter,favorite:true}).length,0);
+assert.equal(C.search(records,{...filter,origin:{lat:0,lon:0},radius:'1'}).length,0);
+assert(Math.abs(C.distance(0,0,0,1)-111.195)<.01);
+const p=C.planImport(initial,rows,{preserve:true});assert.equal(p.stats.unchanged,589);assert.equal(p.state.records.length,589);assert.deepEqual(initial.records,records);
+const local=C.clone(initial);local.records[0].fields[3]='LOCAL';local.records[0].dirty=true;local.records[1].favorite=true;
+const update=C.clone(rows);update[0][3]='REMOTE';update[2][3]='CHANGE';
+let plan=C.planImport(local,update,{preserve:true,github:true});assert.equal(plan.stats.preserved,1);assert.equal(plan.stats.updated,1);assert.equal(plan.conflicts.length,1);assert.equal(plan.state.records[0].fields[3],'LOCAL');assert(plan.state.lastSync);
+assert.equal(plan.state.records[1].favorite,true);assert.equal(local.records[2].fields[3],'');
+plan=C.planImport(local,update,{preserve:false});assert.equal(plan.state.records[0].fields[3],'REMOTE');
+const deleted=C.clone(initial);deleted.tombstones=[C.key(rows[0])];deleted.records.shift();plan=C.planImport(deleted,rows,{preserve:true});assert.equal(plan.state.records.length,588);assert.equal(plan.stats.preserved,1);
+plan=C.planImport(deleted,rows,{preserve:false});assert.equal(plan.state.records.length,589);assert.equal(plan.state.tombstones.length,0);
+plan=C.planImport(local,rows.slice(0,2),{replace:true});assert.equal(plan.state.records.length,2);assert.equal(plan.state.records[1].favorite,true);assert.equal(plan.state.records[0].dirty,false);
+// Moving a locally edited repeater still matches its original source key.
+local.records[0].fields[6]='146.530000';plan=C.planImport(local,rows,{preserve:true});assert.equal(plan.state.records.length,589);assert.equal(plan.state.records[0].fields[6],'146.530000');
+console.log('PASS: filtering, accent search, frequencies, distance, merge, overwrite, deletion tombstones, replacement, favorites and source identity.');
