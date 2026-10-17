@@ -14,6 +14,7 @@ public class CsvTest {
   for(int i=0;i<rows.size();i++)check(Arrays.equals(rows.get(i),comma.get(i)),"roundtrip "+i);
   String[] quoted=rows.get(0).clone();quoted[2]="Rio; \"Branco\"";List<String[]> special=Collections.singletonList(quoted);
   check(Arrays.equals(quoted,Csv.parse(Csv.write(special,';')).get(0)),"quoted delimiters and escapes");
+  String[] sub=rows.get(0).clone();sub[3]="123456789";rejects(()->Csv.validate(sub),"subname 8-character radio limit");
   String[] bad=rows.get(0).clone();bad[6]="NaN";rejects(()->Csv.validate(bad),"NaN");bad[6]="146.5200000";rejects(()->Csv.validate(bad),"precision");bad[6]="146.520000";bad[14]="-91";rejects(()->Csv.validate(bad),"latitude");bad[14]="-20";bad[0]="51";rejects(()->Csv.validate(bad),"group count");
   rejects(()->Csv.parse(input+input.split("\r\n")[1]+"\r\n"),"duplicate CSV");
   rejects(()->Csv.parse(input.replace("Group No;","Other;")),"missing header");

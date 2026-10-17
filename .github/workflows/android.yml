@@ -44,15 +44,17 @@ jobs:
         with:
           api-level: 35
           arch: x86_64
-          profile: pixel_7_pro
+          profile: pixel_2
           disable-animations: true
           script: |
+            sleep 15
+            adb shell input keyevent 82
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
             adb logcat -c
             adb shell am instrument -w br.com.pp5ci.repeaters705.test/br.com.pp5ci.repeaters705.SmokeTest | tee native-smoke.log
-            adb logcat -d -t 1000 > native-logcat.txt
-            cat native-logcat.txt
+            adb logcat -d > native-logcat.txt
+            grep -E 'chromium|AndroidRuntime|pp5ci|FATAL|WebView|SmokeTest' native-logcat.txt || true
             grep 'PASS: Native WebView' native-smoke.log
             adb uninstall br.com.pp5ci.repeaters705
             adb install dist/Repeaters-list-705-v1.0.0.apk

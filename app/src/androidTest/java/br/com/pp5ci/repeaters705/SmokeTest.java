@@ -10,7 +10,7 @@ import org.json.*;
 public class SmokeTest extends Instrumentation {
  MainActivity activity;
  @Override public void onCreate(Bundle args){super.onCreate(args);start();}
- String eval(String js)throws Exception{CountDownLatch latch=new CountDownLatch(1);String[] result={null};runOnMainSync(()->activity.web.evaluateJavascript(js,v->{result[0]=v;latch.countDown();}));if(!latch.await(10,TimeUnit.SECONDS))throw new AssertionError("JavaScript timeout");return result[0];}
+ String eval(String js)throws Exception{CountDownLatch latch=new CountDownLatch(1);String[] result={null};runOnMainSync(()->activity.web.evaluateJavascript(js,v->{result[0]=v;latch.countDown();}));if(!latch.await(45,TimeUnit.SECONDS))throw new AssertionError("JavaScript timeout: "+js);return result[0];}
  void check(boolean value,String label){if(!value)throw new AssertionError(label);}
  @Override public void onStart(){Bundle result=new Bundle();try{
   Intent i=new Intent(getTargetContext(),MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);activity=(MainActivity)startActivitySync(i);waitForIdleSync();
@@ -26,5 +26,5 @@ public class SmokeTest extends Instrumentation {
   android.content.SharedPreferences prefs=activity.getSharedPreferences("settings",0);String encrypted=prefs.getString("token","");check(!encrypted.contains("instrumentation-test-only")&&encrypted.contains(":"),"Token encrypted at rest");check("instrumentation-test-only".equals(activity.crypt(encrypted,false)),"Keystore decryption");
   eval("Native.saveSettings(JSON.stringify({repo:'cleziotc/rpt-705',branch:'main',path:'data/rpt_updated.csv',removeToken:true,auto:false}));$('modal').close();render();");
   result.putString("stream","PASS: Native WebView, seed, search, CRUD, disk persistence, undo, Keystore encryption and token removal.\n");finish(Activity.RESULT_OK,result);
- }catch(Throwable e){result.putString("stream","FAIL: "+e+"\n");result.putString("shortMsg",e.toString());finish(Activity.RESULT_CANCELED,result);}}
+ }catch(Throwable e){e.printStackTrace();result.putString("stream","FAIL: "+e+"\n");result.putString("shortMsg",e.toString());finish(Activity.RESULT_CANCELED,result);}}
 }

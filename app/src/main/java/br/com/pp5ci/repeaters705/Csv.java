@@ -52,7 +52,8 @@ public final class Csv {
         if(r==null||r.length!=17)throw new IllegalArgumentException("São necessários 17 campos.");
         for(String s:r)if(s==null||s.contains("\n")||s.contains("\r")||s.contains("\0"))throw new IllegalArgumentException("Campos não podem conter quebras de linha.");
         try{int g=Integer.parseInt(r[0]);if(g<1||g>50)throw new Exception();}catch(Exception e){throw new IllegalArgumentException("Grupo deve estar entre 1 e 50.");}
-        for(int i:new int[]{1,2,3}){if(r[i].length()>16)throw new IllegalArgumentException(HEADERS[i]+": máximo 16 caracteres.");}
+        for(int i:new int[]{1,2}){if(r[i].length()>16)throw new IllegalArgumentException(HEADERS[i]+": máximo 16 caracteres.");}
+        if(r[3].length()>8)throw new IllegalArgumentException("Sub Name: máximo 8 caracteres.");
         if(r[1].trim().isEmpty()||r[2].trim().isEmpty())throw new IllegalArgumentException("Grupo e nome são obrigatórios.");
         for(int i:new int[]{4,5})if(r[i].length()>8||!r[i].matches("[ A-Za-z0-9/]*"))throw new IllegalArgumentException(HEADERS[i]+": até 8 caracteres de indicativo.");
         number(r[6],0.030,470.0,"Frequência (MHz)"); number(r[8],0,59.999999,"Offset (MHz)");

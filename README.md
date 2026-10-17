@@ -13,7 +13,7 @@ O arquivo fornecido `rpt_updated.csv` contém 589 registros, 548 FM e 41 DV, dis
 | Coluna | Conteúdo |
 | --- | --- |
 | Group No / Group Name | Número 1–50 e nome do grupo (até 16 caracteres) |
-| Name / Sub Name | Nome e subnome (até 16 caracteres) |
+| Name / Sub Name | Nome (até 16 caracteres) e subnome (até 8 caracteres) |
 | Repeater Call Sign / Gateway Call Sign | Indicativos, incluindo espaços e módulo D-STAR (até 8 caracteres) |
 | Frequency / Dup / Offset | MHz, OFF/DUP-/DUP+, desvio em MHz |
 | Mode | FM ou DV (D-STAR) |
