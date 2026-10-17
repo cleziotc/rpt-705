@@ -58,10 +58,9 @@ jobs:
             grep 'PASS: Native WebView' native-smoke.log
             adb uninstall br.com.pp5ci.repeaters705
             adb install dist/Repeaters-list-705-v1.0.0.apk
+            adb shell am force-stop com.android.launcher3
             adb shell am start -W -n br.com.pp5ci.repeaters705/.MainActivity
-            sleep 4
-            adb shell uiautomator dump /sdcard/release-window.xml
-            adb pull /sdcard/release-window.xml release-window.xml
+            for attempt in $(seq 1 8); do adb shell uiautomator dump /sdcard/release-window.xml; adb pull /sdcard/release-window.xml release-window.xml; grep -q '589' release-window.xml && break; adb shell am force-stop com.android.launcher3; sleep 3; done
             grep -q '589' release-window.xml
       - name: Verify signed release APK
         run: |
